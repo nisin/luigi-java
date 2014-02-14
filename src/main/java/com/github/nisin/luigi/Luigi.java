@@ -25,18 +25,21 @@ public class Luigi {
             .with_clvector(true)
             .with_clvector_size(100);
 
+    public static class DocVector implements Serializable {
+        public String docId;
+        public Map<String,Double> vector;
+    }
     /**
      * 類似文書インデックス構築
-     * @param vectors
+     * @param vectors 文書ベクトル
      * @return
      */
-
-    public List<Node> build(Map<String,Map<String,Double>> vectors) {
+    public List<Node> build(Iterable<DocVector> vectors) {
         List<Node> nodes = Lists.newArrayList();
-        for (Map.Entry<String, Map<String, Double>> entry : vectors.entrySet()) {
+        for (DocVector entry : vectors) {
             Node node = new Node();
-            node.leaf = entry.getKey();
-            node.centroid = entry.getValue();
+            node.leaf = entry.docId;
+            node.centroid = entry.vector;
             nodes.add(node);
         }
         List<Node> tree = _stack_loop(nodes,0);
@@ -166,7 +169,7 @@ public class Luigi {
         VectorTool.unit_length(vectors);
 
         // Rootノードをキューにいれておく
-        PriorityQueue<PriorityNode> priority_queue = new PriorityQueue<>(num,new Comparator<PriorityNode>() {
+        PriorityQueue<PriorityNode> priority_queue = new PriorityQueue<PriorityNode>(num,new Comparator<PriorityNode>() {
             @Override
             public int compare(PriorityNode o1, PriorityNode o2) {
                 return Doubles.compare(o1.sim,o2.sim);
@@ -207,7 +210,12 @@ public class Luigi {
                 @Override
                 public Node apply(Node node) {
                     double sim = VectorTool.cosine_similarity(wordset, node.centroid);
-                    Node result_node = node.clone();
+                    Node result_node = null;
+                    try {
+                        result_node = node.clone();
+                    } catch (CloneNotSupportedException e) {
+                        throw new RuntimeException(e);
+                    }
                     result_node.similarity = sim;
                     return result_node;
                 }

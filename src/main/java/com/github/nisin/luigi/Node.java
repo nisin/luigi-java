@@ -56,7 +56,7 @@ public class Node implements Cloneable,Serializable {
         return Iterables.limit(sort.sortedCopy(centroid.keySet()),limit);
     }
 
-    public Node clone() {
+    public Node clone() throws CloneNotSupportedException {
         try {
             return (Node) super.clone();
         } catch (CloneNotSupportedException e) {

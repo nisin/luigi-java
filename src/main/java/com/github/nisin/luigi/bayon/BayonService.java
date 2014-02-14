@@ -97,7 +97,7 @@ public class BayonService {
     public Integer clvector_size()  {return clvector_size; }
     public Integer clvector_size(Integer clvector_size) { this.clvector_size = clvector_size; return clvector_size(); }
     public BayonService with_clvector_size(Integer clvector_size) { clvector_size(clvector_size); return this; }
-    public enum METHOD {rb,kmeans};
+    public enum METHOD {rb,kmeans}
     private METHOD method;
     public METHOD method()  {return method; }
     public METHOD method(METHOD method) { this.method = method; return method(); }

@@ -2,12 +2,16 @@ package com.github.nisin.luigi.bayon;
 
 import com.google.common.base.*;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.io.FileBackedOutputStream;
 import com.google.common.io.Files;
+import com.sun.org.apache.bcel.internal.generic.RET;
 import org.apache.commons.exec.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -15,13 +19,23 @@ import java.util.Map;
  */
 public class BayonService {
     static File work_dir = Files.createTempDir();
+    private static final String BAYON_BASENAME = "bayon";
     public BayonService() {
-        this.bayon_path = "bayon";
+        this.bayon_path = BAYON_BASENAME;
     }
 
     private String bayon_path;
     public static BayonService create() {
-        return new BayonService();
+        BayonService service = new BayonService();
+
+        for (String path : Lists.newArrayList("/bin","/usr/bin","/usr/local/bin","/opt/bin")) {
+            File bin = new File(path,BAYON_BASENAME);
+            if (bin.exists()) {
+                service.bayon_path = bin.getAbsolutePath();
+                break;
+            }
+        };
+        return service;
     }
     public static BayonService create(String commandPath) {
         BayonService service = create();
@@ -34,11 +48,14 @@ public class BayonService {
             File input = work_dir.createTempFile("bayon_document","input");
             File vector = work_dir.createTempFile("bayon_clvector","output");
             Files.asCharSink(input,Charsets.UTF_8).writeLines(Iterables.transform(documents,new Function<Bayon.Document, CharSequence>() {
-                Joiner.MapJoiner mj = Joiner.on("\t").skipNulls().withKeyValueSeparator("\t");
+                Joiner.MapJoiner mj = Joiner.on("\t").withKeyValueSeparator("\t");
+                StringBuilder sb = new StringBuilder();
                 @Override
                 public CharSequence apply(Bayon.Document input) {
-                    StringBuilder sb = new StringBuilder(input.documentId).append("\t");
-                    return mj.appendTo(sb,input.vector);
+                    sb.setLength(0);
+                    sb.append(input.documentId).append("\t");
+                    mj.appendTo(sb,input.vector);
+                    return sb.toString();
                 }
             }));
 
@@ -65,6 +82,8 @@ public class BayonService {
                 cmd.addArgument("--seed").addArgument(seed.toString());
             if (idf)
                 cmd.addArgument("--idf");
+            cmd.addArgument("${input}");
+            map.put("input",input);
             if (map.size()>0)
                 cmd.setSubstitutionMap(map);
             Bayon bayon = new Bayon(cmd,point,clvector);

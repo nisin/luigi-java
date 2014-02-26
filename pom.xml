@@ -9,6 +9,23 @@
 
   <name>Luigi</name>
   <url>http://maven.apache.org</url>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +35,7 @@
       <dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
-          <version>[15.0,)</version>
+          <version>[13.0,15.0)</version>
       </dependency>
       <dependency>
           <groupId>org.apache.commons</groupId>
@@ -31,5 +48,12 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>com.carrotsearch</groupId>
+          <artifactId>java-sizeof</artifactId>
+          <version>0.0.4</version>
+          <scope>test</scope>
+      </dependency>
+
   </dependencies>
 </project>

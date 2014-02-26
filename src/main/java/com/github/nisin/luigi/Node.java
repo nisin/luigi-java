@@ -1,6 +1,7 @@
 package com.github.nisin.luigi;
 
 import com.google.common.base.Functions;
+import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import com.google.common.collect.*;
 
@@ -17,6 +18,7 @@ import java.util.Map;
  */
 public class Node implements Cloneable,Serializable {
     private static final Node EMPTY_NODE = new Node();
+    public int index;
     public Map<String,Double> centroid;
     public List<Node> child_nodes = Lists.newArrayList();
     public String leaf;
@@ -62,5 +64,15 @@ public class Node implements Cloneable,Serializable {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("index", index)
+                .add("leaf", leaf)
+                .add("centroid", centroid_words())
+                .add("similarity", similarity)
+                .toString();
     }
 }
